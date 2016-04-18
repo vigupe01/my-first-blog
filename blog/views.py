@@ -4,6 +4,23 @@ from .models import Post
 from django.shortcuts import render, get_object_or_404
 from .forms import PostForm
 from django.shortcuts import redirect
+from .serializers import UserSerializer, PostSerializer
+from django.contrib.auth.models import User, Group
+from rest_framework import viewsets
+from rest_framework.permissions import IsAdminUser
+from .permissions import IsAccountAdminOrReadOnly
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAccountAdminOrReadOnly]
+
+
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [IsAccountAdminOrReadOnly]
+
 def post_list(request):
     posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
     return render(request, 'blog/post_list.html', {'posts': posts})
